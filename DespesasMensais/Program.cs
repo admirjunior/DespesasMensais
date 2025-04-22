@@ -82,7 +82,8 @@ namespace ControleDeDespesas
                 menuTable.AddRow("[yellow]7[/]", "[yellow]Dar Baixa em Receita[/]");
                 menuTable.AddRow("[yellow]8[/]", "[yellow]Listar Lançamentos[/]");
                 menuTable.AddRow("[yellow]9[/]", "[yellow]Consultar Saldo por Período[/]");
-                menuTable.AddRow("[yellow]10[/]", "[yellow]Sair[/]");
+                menuTable.AddRow("[yellow]11[/]", "[yellow]Excluir Lançamentos[/]");
+                menuTable.AddRow("[yellow]12[/]", "[yellow]Sair[/]");
 
                 // Renderizar a tabela
                 AnsiConsole.Write(menuTable);
@@ -119,7 +120,10 @@ namespace ControleDeDespesas
                     case "9":
                         ConsultarSaldoPorPeriodo(despesas, receitas);
                         break;
-                    case "10":
+                    case "11":
+                        ExcluirLancamentos(despesas, receitas);
+                        break;
+                    case "12":
                         AnsiConsole.MarkupLine("[yellow]Saindo do sistema...[/]");
                         Thread.Sleep(1000);
                         return;
@@ -265,40 +269,78 @@ namespace ControleDeDespesas
 
         static void ListarDespesas(List<Despesa> despesas)
         {
-            AnsiConsole.MarkupLine("[yellow]Despesas:[/]");
+            // Tabela de Despesas
+            var despesaTable = new Table();
+            despesaTable.Title = new TableTitle("Despesas", new Style(Color.Yellow));
+            despesaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+            despesaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+            despesaTable.AddColumn(new TableColumn("[yellow]Categoria[/]").Centered());
+            despesaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+            despesaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+            despesaTable.Border(TableBorder.Rounded);
+            despesaTable.BorderStyle(new Style(Color.Yellow));
+
             if (!despesas.Any())
             {
-                AnsiConsole.MarkupLine("[yellow]Nenhuma despesa cadastrada.[/]");
+                despesaTable.AddRow("[yellow]Nenhuma despesa cadastrada.[/]");
             }
             else
             {
                 foreach (var despesa in despesas)
                 {
                     var status = despesa.Baixa ? "Baixada" : "Previsão";
-                    AnsiConsole.MarkupLine($"[yellow]Valor: R$ {despesa.Valor:F2}, Vencimento: {despesa.DataVencimento:dd/MM/yyyy}, " +
-                                        $"Categoria: {despesa.Categoria.Nome}, Descrição: {despesa.Descricao}, Status: {status}[/]");
+                    despesaTable.AddRow(
+                        $"[yellow]R$ {despesa.Valor:F2}[/]",
+                        $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[yellow]{despesa.Categoria.Nome}[/]",
+                        $"[yellow]{despesa.Descricao}[/]",
+                        $"[yellow]{status}[/]"
+                    );
                 }
             }
+
+            // Renderizar a tabela
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(despesaTable);
+            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
         }
 
         static void ListarReceitas(List<Receita> receitas)
         {
-            AnsiConsole.MarkupLine("[yellow]Receitas:[/]");
+            // Tabela de Receitas
+            var receitaTable = new Table();
+            receitaTable.Title = new TableTitle("Receitas", new Style(Color.Yellow));
+            receitaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+            receitaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+            receitaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+            receitaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+            receitaTable.Border(TableBorder.Rounded);
+            receitaTable.BorderStyle(new Style(Color.Yellow));
+
             if (!receitas.Any())
             {
-                AnsiConsole.MarkupLine("[yellow]Nenhuma receita cadastrada.[/]");
+                receitaTable.AddRow("[yellow]Nenhuma receita cadastrada.[/]");
             }
             else
             {
                 foreach (var receita in receitas)
                 {
                     var status = receita.Baixa ? "Baixada" : "Previsão";
-                    AnsiConsole.MarkupLine($"[yellow]Valor: R$ {receita.Valor:F2}, Vencimento: {receita.DataVencimento:dd/MM/yyyy}, " +
-                                        $"Descrição: {receita.Descricao}, Status: {status}[/]");
+                    receitaTable.AddRow(
+                        $"[yellow]R$ {receita.Valor:F2}[/]",
+                        $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[yellow]{receita.Descricao}[/]",
+                        $"[yellow]{status}[/]"
+                    );
                 }
             }
+
+            // Renderizar a tabela
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(receitaTable);
+            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
         }
@@ -585,11 +627,33 @@ namespace ControleDeDespesas
                 }
             }
 
+            // Calcular saldos
+            var totalReceitasBaixadas = receitas.Where(r => r.Baixa).Sum(r => r.Valor);
+            var totalDespesasBaixadas = despesas.Where(d => d.Baixa).Sum(d => d.Valor);
+            var saldoAtual = totalReceitasBaixadas - totalDespesasBaixadas;
+
+            var totalReceitas = receitas.Sum(r => r.Valor);
+            var totalDespesas = despesas.Sum(d => d.Valor);
+            var saldoPrevisto = totalReceitas - totalDespesas;
+
+            // Tabela de Saldos
+            var saldoTable = new Table();
+            saldoTable.Title = new TableTitle("Saldos", new Style(Color.Yellow));
+            saldoTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+            saldoTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+            saldoTable.Border(TableBorder.Rounded);
+            saldoTable.BorderStyle(new Style(Color.Yellow));
+
+            saldoTable.AddRow("[yellow]Saldo Atual (Baixados)[/]", $"[yellow]R$ {saldoAtual:F2}[/]");
+            saldoTable.AddRow("[yellow]Saldo Previsto (Total)[/]", $"[yellow]R$ {saldoPrevisto:F2}[/]");
+
             // Renderizar as tabelas
             AnsiConsole.WriteLine();
             AnsiConsole.Write(despesaTable);
             AnsiConsole.WriteLine();
             AnsiConsole.Write(receitaTable);
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(saldoTable);
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
@@ -722,6 +786,208 @@ namespace ControleDeDespesas
             }
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
+        }
+
+        static void ExcluirLancamentos(List<Despesa> despesas, List<Receita> receitas)
+        {
+            try
+            {
+                if (!despesas.Any() && !receitas.Any())
+                {
+                    AnsiConsole.MarkupLine("[yellow]Nenhum lançamento cadastrado para excluir.[/]");
+                    Thread.Sleep(1000);
+                    return;
+                }
+
+                // Tabela de Despesas
+                var despesaTable = new Table();
+                despesaTable.Title = new TableTitle("Despesas", new Style(Color.Yellow));
+                despesaTable.AddColumn(new TableColumn("[yellow]Nº[/]").Centered());
+                despesaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+                despesaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+                despesaTable.AddColumn(new TableColumn("[yellow]Categoria[/]").Centered());
+                despesaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+                despesaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+                despesaTable.Border(TableBorder.Rounded);
+                despesaTable.BorderStyle(new Style(Color.Yellow));
+
+                if (!despesas.Any())
+                {
+                    despesaTable.AddRow("[yellow]Nenhuma despesa cadastrada.[/]");
+                }
+                else
+                {
+                    for (int i = 0; i < despesas.Count; i++)
+                    {
+                        var despesa = despesas[i];
+                        var status = despesa.Baixa ? "Baixada" : "Previsão";
+                        despesaTable.AddRow(
+                            $"[yellow]{i + 1}[/]",
+                            $"[yellow]R$ {despesa.Valor:F2}[/]",
+                            $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                            $"[yellow]{despesa.Categoria.Nome}[/]",
+                            $"[yellow]{despesa.Descricao}[/]",
+                            $"[yellow]{status}[/]"
+                        );
+                    }
+                }
+
+                // Tabela de Receitas
+                var receitaTable = new Table();
+                receitaTable.Title = new TableTitle("Receitas", new Style(Color.Yellow));
+                receitaTable.AddColumn(new TableColumn("[yellow]Nº[/]").Centered());
+                receitaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+                receitaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+                receitaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+                receitaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+                receitaTable.Border(TableBorder.Rounded);
+                receitaTable.BorderStyle(new Style(Color.Yellow));
+
+                if (!receitas.Any())
+                {
+                    receitaTable.AddRow("[yellow]Nenhuma receita cadastrada.[/]");
+                }
+                else
+                {
+                    for (int i = 0; i < receitas.Count; i++)
+                    {
+                        var receita = receitas[i];
+                        var status = receita.Baixa ? "Baixada" : "Previsão";
+                        receitaTable.AddRow(
+                            $"[yellow]{i + 1}[/]",
+                            $"[yellow]R$ {receita.Valor:F2}[/]",
+                            $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                            $"[yellow]{receita.Descricao}[/]",
+                            $"[yellow]{status}[/]"
+                        );
+                    }
+                }
+
+                // Renderizar as tabelas
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(despesaTable);
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(receitaTable);
+                AnsiConsole.WriteLine();
+
+                AnsiConsole.Markup("[yellow]Digite os números dos lançamentos para excluir (ex: 1,3 para despesas, R1,R3 para receitas) ou 0 para cancelar: [/]");
+                var input = Console.ReadLine();
+                if (input.Trim() == "0")
+                {
+                    AnsiConsole.MarkupLine("[yellow]Operação cancelada.[/]");
+                    Thread.Sleep(1000);
+                    return;
+                }
+
+                var despesasParaExcluir = new List<(int Index, Despesa Despesa)>();
+                var receitasParaExcluir = new List<(int Index, Receita Receita)>();
+                var erros = new List<string>();
+
+                // Processar entrada
+                var entradas = input.Split(',')
+                    .Select(n => n.Trim())
+                    .Where(n => !string.IsNullOrWhiteSpace(n))
+                    .ToList();
+
+                foreach (var entrada in entradas)
+                {
+                    if (entrada.StartsWith("R", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Receita
+                        if (int.TryParse(entrada.Substring(1), out int numero) && numero >= 1 && numero <= receitas.Count)
+                        {
+                            receitasParaExcluir.Add((numero - 1, receitas[numero - 1]));
+                        }
+                        else
+                        {
+                            erros.Add($"Número de receita {entrada} inválido.");
+                        }
+                    }
+                    else
+                    {
+                        // Despesa
+                        if (int.TryParse(entrada, out int numero) && numero >= 1 && numero <= despesas.Count)
+                        {
+                            despesasParaExcluir.Add((numero - 1, despesas[numero - 1]));
+                        }
+                        else
+                        {
+                            erros.Add($"Número de despesa {entrada} inválido.");
+                        }
+                    }
+                }
+
+                if (!despesasParaExcluir.Any() && !receitasParaExcluir.Any() && erros.Any())
+                {
+                    foreach (var erro in erros)
+                    {
+                        AnsiConsole.MarkupLine($"[red]{erro}[/]");
+                    }
+                    AnsiConsole.MarkupLine("[red]Nenhum lançamento válido informado.[/]");
+                    Thread.Sleep(1000);
+                    return;
+                }
+
+                // Confirmar exclusão
+                var exclusoesRealizadas = new List<string>();
+
+                foreach (var (index, despesa) in despesasParaExcluir.OrderByDescending(d => d.Index))
+                {
+                    AnsiConsole.Markup($"[yellow]Tem certeza que deseja excluir a despesa '{despesa.Descricao}' (R$ {despesa.Valor:F2})? (S/N): [/]");
+                    var confirmacao = Console.ReadLine().ToUpper();
+                    if (confirmacao == "S")
+                    {
+                        despesas.RemoveAt(index);
+                        exclusoesRealizadas.Add($"Despesa {index + 1} ({despesa.Descricao}) excluída com sucesso.");
+                    }
+                    else
+                    {
+                        erros.Add($"Exclusão da despesa {index + 1} ({despesa.Descricao}) cancelada.");
+                    }
+                }
+
+                foreach (var (index, receita) in receitasParaExcluir.OrderByDescending(r => r.Index))
+                {
+                    AnsiConsole.Markup($"[yellow]Tem certeza que deseja excluir a receita '{receita.Descricao}' (R$ {receita.Valor:F2})? (S/N): [/]");
+                    var confirmacao = Console.ReadLine().ToUpper();
+                    if (confirmacao == "S")
+                    {
+                        receitas.RemoveAt(index);
+                        exclusoesRealizadas.Add($"Receita {index + 1} ({receita.Descricao}) excluída com sucesso.");
+                    }
+                    else
+                    {
+                        erros.Add($"Exclusão da receita {index + 1} ({receita.Descricao}) cancelada.");
+                    }
+                }
+
+                // Exibir resultados
+                if (exclusoesRealizadas.Any())
+                {
+                    foreach (var mensagem in exclusoesRealizadas)
+                    {
+                        AnsiConsole.MarkupLine($"[yellow]{mensagem}[/]");
+                    }
+                }
+
+                if (erros.Any())
+                {
+                    foreach (var erro in erros)
+                    {
+                        AnsiConsole.MarkupLine($"[red]{erro}[/]");
+                    }
+                }
+
+                if (!exclusoesRealizadas.Any() && erros.Any())
+                {
+                    AnsiConsole.MarkupLine("[red]Nenhuma exclusão foi realizada.[/]");
+                }
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Erro ao excluir lançamentos: {ex.Message}[/]");
+            }
+            Thread.Sleep(1000);
         }
     }
 }
