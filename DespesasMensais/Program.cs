@@ -269,78 +269,128 @@ namespace ControleDeDespesas
 
         static void ListarDespesas(List<Despesa> despesas)
         {
-            // Tabela de Despesas
-            var despesaTable = new Table();
-            despesaTable.Title = new TableTitle("Despesas", new Style(Color.Yellow));
-            despesaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
-            despesaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
-            despesaTable.AddColumn(new TableColumn("[yellow]Categoria[/]").Centered());
-            despesaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
-            despesaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
-            despesaTable.Border(TableBorder.Rounded);
-            despesaTable.BorderStyle(new Style(Color.Yellow));
-
             if (!despesas.Any())
             {
-                despesaTable.AddRow("[yellow]Nenhuma despesa cadastrada.[/]");
+                var table = new Table();
+                table.Title = new TableTitle("Despesas", new Style(Color.Yellow));
+                table.AddColumn(new TableColumn("[yellow]Mensagem[/]").Centered());
+                table.Border(TableBorder.Rounded);
+                table.BorderStyle(new Style(Color.Yellow));
+                table.AddRow("[yellow]Nenhuma despesa cadastrada.[/]");
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
+                Console.ReadKey();
+                return;
             }
-            else
+
+            // Agrupar despesas por categoria
+            var despesasPorCategoria = despesas
+                .GroupBy(d => d.Categoria.Nome)
+                .OrderBy(g => g.Key);
+
+            foreach (var grupo in despesasPorCategoria)
             {
-                foreach (var despesa in despesas)
+                var table = new Table();
+                table.Title = new TableTitle($"Despesas - Categoria: {grupo.Key}", new Style(Color.Yellow));
+                table.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+                table.Border(TableBorder.Rounded);
+                table.BorderStyle(new Style(Color.Yellow));
+
+                foreach (var despesa in grupo)
                 {
                     var status = despesa.Baixa ? "Baixada" : "Previsão";
-                    despesaTable.AddRow(
+                    table.AddRow(
                         $"[yellow]R$ {despesa.Valor:F2}[/]",
                         $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{despesa.Categoria.Nome}[/]",
                         $"[yellow]{despesa.Descricao}[/]",
                         $"[yellow]{status}[/]"
                     );
                 }
+
+                // Calcular e exibir soma total
+                var total = grupo.Sum(d => d.Valor);
+                table.AddEmptyRow();
+                table.AddRow(
+                    "[yellow]Total[/]",
+                    "",
+                    "",
+                    $"[yellow]R$ {total:F2}[/]"
+                );
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
             }
 
-            // Renderizar a tabela
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(despesaTable);
-            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
         }
 
         static void ListarReceitas(List<Receita> receitas)
         {
-            // Tabela de Receitas
-            var receitaTable = new Table();
-            receitaTable.Title = new TableTitle("Receitas", new Style(Color.Yellow));
-            receitaTable.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
-            receitaTable.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
-            receitaTable.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
-            receitaTable.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
-            receitaTable.Border(TableBorder.Rounded);
-            receitaTable.BorderStyle(new Style(Color.Yellow));
-
             if (!receitas.Any())
             {
-                receitaTable.AddRow("[yellow]Nenhuma receita cadastrada.[/]");
+                var table = new Table();
+                table.Title = new TableTitle("Receitas", new Style(Color.Yellow));
+                table.AddColumn(new TableColumn("[yellow]Mensagem[/]").Centered());
+                table.Border(TableBorder.Rounded);
+                table.BorderStyle(new Style(Color.Yellow));
+                table.AddRow("[yellow]Nenhuma receita cadastrada.[/]");
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
+                Console.ReadKey();
+                return;
             }
-            else
+
+            // Agrupar receitas por descrição
+            var receitasPorDescricao = receitas
+                .GroupBy(r => r.Descricao)
+                .OrderBy(g => g.Key);
+
+            foreach (var grupo in receitasPorDescricao)
             {
-                foreach (var receita in receitas)
+                var table = new Table();
+                table.Title = new TableTitle($"Receitas - Descrição: {grupo.Key}", new Style(Color.Yellow));
+                table.AddColumn(new TableColumn("[yellow]Valor[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Vencimento[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Descrição[/]").Centered());
+                table.AddColumn(new TableColumn("[yellow]Status[/]").Centered());
+                table.Border(TableBorder.Rounded);
+                table.BorderStyle(new Style(Color.Yellow));
+
+                foreach (var receita in grupo)
                 {
                     var status = receita.Baixa ? "Baixada" : "Previsão";
-                    receitaTable.AddRow(
+                    table.AddRow(
                         $"[yellow]R$ {receita.Valor:F2}[/]",
                         $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
                         $"[yellow]{receita.Descricao}[/]",
                         $"[yellow]{status}[/]"
                     );
                 }
+
+                // Calcular e exibir soma total
+                var total = grupo.Sum(r => r.Valor);
+                table.AddEmptyRow();
+                table.AddRow(
+                    "[yellow]Total[/]",
+                    "",
+                    "",
+                    $"[yellow]R$ {total:F2}[/]"
+                );
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write(table);
+                AnsiConsole.WriteLine();
             }
 
-            // Renderizar a tabela
-            AnsiConsole.WriteLine();
-            AnsiConsole.Write(receitaTable);
-            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]Pressione uma tecla para continuar...[/]");
             Console.ReadKey();
         }
