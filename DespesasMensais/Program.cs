@@ -304,11 +304,13 @@ namespace ControleDeDespesas
                 foreach (var despesa in grupo)
                 {
                     var status = despesa.Baixa ? "Baixada" : "Previsão";
+                    var isVencida = !despesa.Baixa && despesa.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     table.AddRow(
-                        $"[yellow]R$ {despesa.Valor:F2}[/]",
-                        $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{despesa.Descricao}[/]",
-                        $"[yellow]{status}[/]"
+                        $"[{cor}]R$ {despesa.Valor:F2}[/]",
+                        $"[{cor}]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{despesa.Descricao}[/]",
+                        $"[{cor}]{status}[/]"
                     );
                 }
 
@@ -368,11 +370,13 @@ namespace ControleDeDespesas
                 foreach (var receita in grupo)
                 {
                     var status = receita.Baixa ? "Baixada" : "Previsão";
+                    var isVencida = !receita.Baixa && receita.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     table.AddRow(
-                        $"[yellow]R$ {receita.Valor:F2}[/]",
-                        $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{receita.Descricao}[/]",
-                        $"[yellow]{status}[/]"
+                        $"[{cor}]R$ {receita.Valor:F2}[/]",
+                        $"[{cor}]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{receita.Descricao}[/]",
+                        $"[{cor}]{status}[/]"
                     );
                 }
 
@@ -421,12 +425,14 @@ namespace ControleDeDespesas
                 for (int i = 0; i < despesasNaoBaixadas.Count; i++)
                 {
                     var despesa = despesasNaoBaixadas[i];
+                    var isVencida = !despesa.Baixa && despesa.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     table.AddRow(
-                        $"[yellow]{i + 1}[/]",
-                        $"[yellow]R$ {despesa.Valor:F2}[/]",
-                        $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{despesa.Categoria.Nome}[/]",
-                        $"[yellow]{despesa.Descricao}[/]"
+                        $"[{cor}]{i + 1}[/]",
+                        $"[{cor}]R$ {despesa.Valor:F2}[/]",
+                        $"[{cor}]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{despesa.Categoria.Nome}[/]",
+                        $"[{cor}]{despesa.Descricao}[/]"
                     );
                 }
 
@@ -532,11 +538,13 @@ namespace ControleDeDespesas
                 for (int i = 0; i < receitasNaoBaixadas.Count; i++)
                 {
                     var receita = receitasNaoBaixadas[i];
+                    var isVencida = !receita.Baixa && receita.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     table.AddRow(
-                        $"[yellow]{i + 1}[/]",
-                        $"[yellow]R$ {receita.Valor:F2}[/]",
-                        $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{receita.Descricao}[/]"
+                        $"[{cor}]{i + 1}[/]",
+                        $"[{cor}]R$ {receita.Valor:F2}[/]",
+                        $"[{cor}]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{receita.Descricao}[/]"
                     );
                 }
 
@@ -639,12 +647,14 @@ namespace ControleDeDespesas
                 foreach (var despesa in despesas)
                 {
                     var status = despesa.Baixa ? "Baixada" : "Previsão";
+                    var isVencida = !despesa.Baixa && despesa.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     despesaTable.AddRow(
-                        $"[yellow]R$ {despesa.Valor:F2}[/]",
-                        $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{despesa.Categoria.Nome}[/]",
-                        $"[yellow]{despesa.Descricao}[/]",
-                        $"[yellow]{status}[/]"
+                        $"[{cor}]R$ {despesa.Valor:F2}[/]",
+                        $"[{cor}]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{despesa.Categoria.Nome}[/]",
+                        $"[{cor}]{despesa.Descricao}[/]",
+                        $"[{cor}]{status}[/]"
                     );
                 }
             }
@@ -668,11 +678,13 @@ namespace ControleDeDespesas
                 foreach (var receita in receitas)
                 {
                     var status = receita.Baixa ? "Baixada" : "Previsão";
+                    var isVencida = !receita.Baixa && receita.DataVencimento < DateTime.Today;
+                    var cor = isVencida ? "red" : "yellow";
                     receitaTable.AddRow(
-                        $"[yellow]R$ {receita.Valor:F2}[/]",
-                        $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
-                        $"[yellow]{receita.Descricao}[/]",
-                        $"[yellow]{status}[/]"
+                        $"[{cor}]R$ {receita.Valor:F2}[/]",
+                        $"[{cor}]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                        $"[{cor}]{receita.Descricao}[/]",
+                        $"[{cor}]{status}[/]"
                     );
                 }
             }
@@ -793,11 +805,13 @@ namespace ControleDeDespesas
 
                         foreach (var d in despesasPrevistas)
                         {
+                            var isVencida = !d.Baixa && d.DataVencimento < DateTime.Today;
+                            var cor = isVencida ? "red" : "yellow";
                             despesaPrevistaTable.AddRow(
-                                $"[yellow]R$ {d.Valor:F2}[/]",
-                                $"[yellow]{d.DataVencimento:dd/MM/yyyy}[/]",
-                                $"[yellow]{d.Categoria.Nome}[/]",
-                                $"[yellow]{d.Descricao}[/]"
+                                $"[{cor}]R$ {d.Valor:F2}[/]",
+                                $"[{cor}]{d.DataVencimento:dd/MM/yyyy}[/]",
+                                $"[{cor}]{d.Categoria.Nome}[/]",
+                                $"[{cor}]{d.Descricao}[/]"
                             );
                         }
 
@@ -818,10 +832,12 @@ namespace ControleDeDespesas
 
                         foreach (var r in receitasPrevistas)
                         {
+                            var isVencida = !r.Baixa && r.DataVencimento < DateTime.Today;
+                            var cor = isVencida ? "red" : "yellow";
                             receitaPrevistaTable.AddRow(
-                                $"[yellow]R$ {r.Valor:F2}[/]",
-                                $"[yellow]{r.DataVencimento:dd/MM/yyyy}[/]",
-                                $"[yellow]{r.Descricao}[/]"
+                                $"[{cor}]R$ {r.Valor:F2}[/]",
+                                $"[{cor}]{r.DataVencimento:dd/MM/yyyy}[/]",
+                                $"[{cor}]{r.Descricao}[/]"
                             );
                         }
 
@@ -871,13 +887,15 @@ namespace ControleDeDespesas
                     {
                         var despesa = despesas[i];
                         var status = despesa.Baixa ? "Baixada" : "Previsão";
+                        var isVencida = !despesa.Baixa && despesa.DataVencimento < DateTime.Today;
+                        var cor = isVencida ? "red" : "yellow";
                         despesaTable.AddRow(
-                            $"[yellow]{i + 1}[/]",
-                            $"[yellow]R$ {despesa.Valor:F2}[/]",
-                            $"[yellow]{despesa.DataVencimento:dd/MM/yyyy}[/]",
-                            $"[yellow]{despesa.Categoria.Nome}[/]",
-                            $"[yellow]{despesa.Descricao}[/]",
-                            $"[yellow]{status}[/]"
+                            $"[{cor}]{i + 1}[/]",
+                            $"[{cor}]R$ {despesa.Valor:F2}[/]",
+                            $"[{cor}]{despesa.DataVencimento:dd/MM/yyyy}[/]",
+                            $"[{cor}]{despesa.Categoria.Nome}[/]",
+                            $"[{cor}]{despesa.Descricao}[/]",
+                            $"[{cor}]{status}[/]"
                         );
                     }
                 }
@@ -903,12 +921,14 @@ namespace ControleDeDespesas
                     {
                         var receita = receitas[i];
                         var status = receita.Baixa ? "Baixada" : "Previsão";
+                        var isVencida = !receita.Baixa && receita.DataVencimento < DateTime.Today;
+                        var cor = isVencida ? "red" : "yellow";
                         receitaTable.AddRow(
-                            $"[yellow]{i + 1}[/]",
-                            $"[yellow]R$ {receita.Valor:F2}[/]",
-                            $"[yellow]{receita.DataVencimento:dd/MM/yyyy}[/]",
-                            $"[yellow]{receita.Descricao}[/]",
-                            $"[yellow]{status}[/]"
+                            $"[{cor}]{i + 1}[/]",
+                            $"[{cor}]R$ {receita.Valor:F2}[/]",
+                            $"[{cor}]{receita.DataVencimento:dd/MM/yyyy}[/]",
+                            $"[{cor}]{receita.Descricao}[/]",
+                            $"[{cor}]{status}[/]"
                         );
                     }
                 }
